@@ -84,7 +84,7 @@ export default function LoginPage() {
                 alt="Logo"
                 width={120}
                 height={40}
-                className="h-24 w-auto"
+                className="h-12 w-auto"
               />
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">ログイン</h2>
