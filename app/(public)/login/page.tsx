@@ -2,14 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/hook/user-context";
 import { useRouter } from "next/navigation";
-import { UserIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 
 type FormData = {
@@ -18,7 +15,6 @@ type FormData = {
 };
 
 export default function LoginPage() {
-  const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -48,15 +44,12 @@ export default function LoginPage() {
     setError("");
 
     try {
-      if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, data.email, data.password);
-      } else {
-        await signInWithEmailAndPassword(auth, data.email, data.password);
-      }
+      await signInWithEmailAndPassword(auth, data.email, data.password);
       router.push("/coming-soon");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("認証エラー:", error);
-      switch (error.code) {
+      const firebaseError = error as { code?: string };
+      switch (firebaseError.code) {
         case "auth/user-not-found":
           setError("ユーザーが見つかりません");
           break;
@@ -94,14 +87,8 @@ export default function LoginPage() {
                 className="h-24 w-auto"
               />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              {isSignUp ? "アカウント作成" : "ログイン"}
-            </h2>
-            <p className="text-gray-600">
-              {isSignUp
-                ? "新しいアカウントを作成してください"
-                : "アカウントにログインしてください"}
-            </p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">ログイン</h2>
+            <p className="text-gray-600">アカウントにログインしてください</p>
           </div>
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -194,8 +181,6 @@ export default function LoginPage() {
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     処理中...
                   </div>
-                ) : isSignUp ? (
-                  "アカウント作成"
                 ) : (
                   "ログイン"
                 )}
